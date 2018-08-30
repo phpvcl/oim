@@ -6,7 +6,7 @@
 ###  网站目录  
 ./application/api  接口  
 ./application/client 访客端与客服端  
-./application/server 服务端
+./application/server 服务端  
 ./application/admin 没做，就客服管理而已
 
 ###  配置说明  
