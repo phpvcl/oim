@@ -1,0 +1,91 @@
+ 
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <title>聊天记录</title>
+        <link rel="stylesheet" href="/static/layui/css/layui.css" media="all">
+        <script src="/static/layui/layui.js"></script>
+        <style>
+            body .layim-chat-main{height: auto;margin-bottom:60px}
+        </style>
+    </head>
+    <body>
+
+        <div class="layim-chat-main">
+            <ul id="LAY_view"></ul>
+        </div>
+
+        <div class='ajax_loading'  style='background:#F0F0F0;height:60px;width:100%;text-align:center;line-height:60px;font-size:18px;position:fixed;bottom:0px'>
+         
+            <a href='javascript:;' id='more'><i class="layui-layer-ico layui-layer-ico16"></i>加载更多……</a>
+        </div>
+
+
+
+
+        <textarea title="消息模版" id="LAY_tpl" style="display:none;">
+
+{{# layui.each(d.data, function(index, item){
+  if(item.id == parent.layui.layim.cache().mine.id){ }}
+    <li class="layim-chat-mine"><div class="layim-chat-user"><img src="{{ item.avatar }}"><cite><i>{{ layui.data.date(item.timestamp) }}</i>{{ item.username }}</cite></div><div class="layim-chat-text">{{ layui.layim.content(item.content) }}</div></li>
+  {{# } else { }}
+    <li><div class="layim-chat-user"><img src="{{ item.avatar }}"><cite>{{ item.username }}<i>{{ layui.data.date(item.timestamp) }}</i></cite></div><div class="layim-chat-text">{{ layui.layim.content(item.content) }}</div></li>
+  {{# }
+});
+
+ }}
+        </textarea>
+
+        <script>
+            layui.use(['layim', 'laytpl', 'jquery'], function () {
+                var layim = layui.layim
+                        , layer = layui.layer
+                        , laytpl = layui.laytpl
+                        , $ = layui.jquery;
+
+                var page = 0;
+                var has = 1;
+                var id = {$Request.param.uid|raw|default="localStorage.getItem('visitor')"};
+                var res, html = '暂无记录'; 
+
+                var key = id + ':' + parent.layui.layim.cache().mine.usertype;
+                $('#more').click(function () {
+                    if (has) {
+                        $.ajax({
+                            type: "get",
+                            url: "/api/ChatRecord/getChatRecord/key/" + key + '/page/' + page,
+                            async: false,
+                            beforeSend: function () {
+                               layer.load(2, {time: 1000})
+                            },
+                            success: function (result) {
+                                if (result.code === 200) {
+                                    parent.layui.layim.cache().mine.id = id;
+                                    html = laytpl(LAY_tpl.value).render({
+                                        data: result.data,
+                                        create_time: result.create_time
+                                    });
+                                    $('#LAY_view').append(html);
+                                    page++;
+                                } else {
+                                    has = 0;
+                                    $('#more').html('没有了');
+                                }
+                            }
+                        });
+                    }
+                })
+                $('#more').trigger("click");
+
+
+
+
+
+
+            });
+        </script>
+    </body>
+</html>
