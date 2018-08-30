@@ -24,4 +24,6 @@
 
 ![图片2](https://github.com/phpvcl/oim/blob/master/readme/02.png)  
 
+![图片4](https://github.com/phpvcl/oim/blob/master/readme/04.png)  
+
 ![图片3](https://github.com/phpvcl/oim/blob/master/readme/03.png)  
