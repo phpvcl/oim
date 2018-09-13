@@ -85,7 +85,7 @@ class WebSocket
                     $param = ['emit' => 'offlineMessage', 'key' => $key, 'fd' => $request->fd];
                     $server->task($param);
                 }
-                //处理发送在线客服上级通知
+                //处理发送在线客服上线通知
                 if ($type == self::CLERK_QUEUE)
                 {
                     $param = ['emit' => 'status', 'key' => $key, 'status' => 'online'];
@@ -202,6 +202,7 @@ class WebSocket
     /**
      * 调用外部方法
      * 
+     * @param $method 方法
      * @param  $param array 携带的参数
      * @return  string 返回获取的内容
      */
@@ -230,7 +231,7 @@ class WebSocket
     {
         $array = [];
         $chatKey = intval($fromKey) > intval($toKey) ? ($fromKey . '|' . $toKey) : ($toKey . '|' . $fromKey);
-        //如果不存在，交换key后再找一次，时间复杂度O(2), 仍比数据库高
+
         if ($message = $server->redis->hGet(self::MESSAGE_QUEUE, $chatKey))
         {
             $array = json_decode($message);
@@ -311,9 +312,8 @@ class WebSocket
                 {
                     //$key=>$value
                     //形式如：888:clerk=>$fd|1:clerk|2:vicistor|3:visitor……
-                    $users = explode('|', $value);
-                    //第1个元素是当前fd标志ID
-                    unset($users[0]);
+                    $users = array_shift(explode('|', $value));
+
                     $message = '';
                     foreach ($users as $toKey)
                     {
